@@ -1,0 +1,138 @@
+/* ============================================================
+   GLIMMICK — Global Styles & Tailwind CSS 4 Theme
+   
+   Design System: "Sticker book / toy catalog"
+   Warm, tactile, playful — like a vintage board game box.
+   ============================================================ */
+
+@import "tailwindcss";
+
+/* ────────────────────────────────────────────────────────────
+   THEME TOKENS
+   All custom colors, fonts, and spacing used across the app.
+   Tailwind v4 CSS-first config via @theme directive.
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  /* ── Color Palette ─────────────────────────────────────── */
+  --color-paper: #F7F3EA;          /* Warm paper white background */
+  --color-ink: #2B2320;            /* Deep charcoal-brown (never pure black) */
+  --color-marigold: #E8A73B;       /* Primary accent */
+  --color-teal: #1F6F63;           /* Secondary accent */
+  --color-cherry: #C1443A;         /* Tertiary accent */
+  --color-clay: #D9CDBA;           /* Card borders & subtle details */
+
+  /* ── Derived Colors ────────────────────────────────────── */
+  --color-paper-dark: #EDE8DC;     /* Slightly darker paper for hover states */
+  --color-marigold-light: #F5D699; /* Light marigold for subtle highlights */
+  --color-teal-light: #2A9D8F;     /* Lighter teal for hover states */
+  --color-ink-muted: #6B5E56;      /* Muted ink for secondary text */
+
+  /* ── Typography ────────────────────────────────────────── */
+  --font-display: var(--font-fredoka), 'Fredoka', sans-serif;
+  --font-body: var(--font-inter), 'Inter', sans-serif;
+  --font-mono: var(--font-geist-mono), 'Geist Mono', monospace;
+
+  /* ── Shadows (sticker-like offset shadows) ─────────────── */
+  --shadow-sticker: 4px 4px 0px 0px var(--color-clay);
+  --shadow-sticker-hover: 6px 6px 0px 0px var(--color-clay);
+  --shadow-sticker-featured: 6px 6px 0px 0px var(--color-clay);
+  --shadow-sticker-featured-hover: 8px 8px 0px 0px var(--color-clay);
+}
+
+/* ────────────────────────────────────────────────────────────
+   GLOBAL BASE STYLES
+   ──────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ────────────────────────────────────────────────────────────
+   STICKER CARD — The signature hover effect
+   
+   Cards start rotated at a slight angle with an offset shadow.
+   On hover, they straighten to 0° and lift slightly,
+   like peeling a sticker off a sheet.
+   ──────────────────────────────────────────────────────────── */
+.sticker-card {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease;
+  will-change: transform;
+}
+
+.sticker-card:hover {
+  transform: rotate(0deg) translateY(-6px) !important;
+  box-shadow: var(--shadow-sticker-hover);
+}
+
+.sticker-card.sticker-card--featured:hover {
+  box-shadow: var(--shadow-sticker-featured-hover);
+}
+
+/* ────────────────────────────────────────────────────────────
+   ACCESSIBILITY — Reduced Motion
+   Disable all transform transitions and animations
+   when the user prefers reduced motion.
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sticker-card {
+    transition: none !important;
+  }
+
+  .sticker-card:hover {
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   SELECTION STYLE
+   ──────────────────────────────────────────────────────────── */
+::selection {
+  background-color: var(--color-marigold);
+  color: var(--color-paper);
+}
+
+/* ────────────────────────────────────────────────────────────
+   FOCUS STYLES — Accessible keyboard navigation
+   ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 3px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   SCROLLBAR — Subtle custom scrollbar matching the palette
+   ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-clay);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted);
+}
