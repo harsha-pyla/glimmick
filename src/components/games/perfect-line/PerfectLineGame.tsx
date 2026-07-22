@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Howl, Howler } from "howler";
 
 // --- Types ---
@@ -341,7 +342,7 @@ export function PerfectLineGame() {
         onPointerMove={draw}
         onPointerUp={endDrawing}
         onPointerLeave={endDrawing}
-        className={`absolute inset-0 w-full h-full z-10 ${gameState !== 'idle' ? 'cursor-crosshair pointer-events-auto' : 'pointer-events-none'}`}
+        className={`absolute inset-0 w-full h-full z-10 touch-none ${gameState !== 'idle' ? 'cursor-crosshair pointer-events-auto' : 'pointer-events-none'}`}
       />
 
       {/* Top Header Bar */}
@@ -350,7 +351,7 @@ export function PerfectLineGame() {
           href="/"
           className="flex items-center gap-2 font-display font-bold text-2xl md:text-3xl tracking-wider text-slate-900 hover:text-slate-600 transition-colors pointer-events-auto"
         >
-          <img src="/logo.jpg" alt="Glimmick Logo" className="w-8 h-8 rounded shadow-sm border-2 border-slate-900" />
+          <Image src="/logo.jpg" alt="Glimmick Logo" width={32} height={32} className="w-8 h-8 rounded shadow-sm border-2 border-slate-900" />
           GLIMMICK
         </Link>
 

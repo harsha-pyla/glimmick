@@ -5,6 +5,8 @@ import { Gamepad2 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 
+import Image from "next/image";
+
 /**
  * Header component for the GLIMMICK website.
  * Displays the brand name and tagline with a minimal, centered design.
@@ -23,7 +25,7 @@ export function Header() {
     >
       <div className="max-w-6xl mx-auto flex flex-col items-center justify-center text-center">
         <Link href="/" className="group flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <img src="/logo.jpg" alt="Glimmick Logo" className="w-8 h-8 md:w-10 md:h-10 rounded shadow-sm border-2 border-ink" />
+          <Image src="/logo.jpg" alt="Glimmick Logo" width={40} height={40} className="w-8 h-8 md:w-10 md:h-10 rounded shadow-sm border-2 border-ink" />
           <h1 className="font-display text-3xl md:text-4xl font-bold text-ink">
             GLIMMICK
           </h1>

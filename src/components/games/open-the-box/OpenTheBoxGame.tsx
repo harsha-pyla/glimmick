@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Howl, Howler } from "howler";
@@ -151,6 +151,26 @@ export function OpenTheBoxGame() {
     return () => clearInterval(interval);
   }, [holdProgress, level, nextLevel]);
 
+  // Level 2 mobile elusive button
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  useEffect(() => {
+    if (level === 2 && isTouchDevice) {
+      const interval = setInterval(() => {
+        setBtnPos({
+          top: `${Math.random() * 80 + 10}%`,
+          left: `${Math.random() * 80 + 10}%`,
+        });
+      }, 500); // Darts around every 500ms
+      return () => clearInterval(interval);
+    }
+  }, [level, isTouchDevice]);
+
   const renderBox = () => {
     const getBoxState = () => {
       if (level === 0) return "scale-100 rotate-0";
@@ -165,7 +185,7 @@ export function OpenTheBoxGame() {
 
     return (
       <div 
-        className={`w-40 h-40 md:w-56 md:h-56 flex items-center justify-center transition-all duration-300 mx-auto ${getBoxState()} ${isShake ? 'animate-shake' : ''}`}
+        className={`w-40 h-40 md:w-56 md:h-56 flex items-center justify-center transition-all duration-300 mx-auto touch-manipulation ${getBoxState()} ${isShake ? 'animate-shake' : ''}`}
         style={boxInlineStyle}
       >
         <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-xl">
@@ -239,7 +259,7 @@ export function OpenTheBoxGame() {
                 setClicks(newClicks);
                 if (newClicks >= 50) nextLevel();
               }}
-              className={`px-8 py-3 border-2 border-ink font-bold ${isTransitioning ? 'opacity-50' : 'active:scale-95 transition-transform'}`}
+              className={`px-8 py-3 border-2 border-ink font-bold touch-manipulation select-none ${isTransitioning ? 'opacity-50' : 'active:scale-95 transition-transform hover:bg-ink hover:text-paper'}`}
             >
               Click me 50 times
             </button>
@@ -251,13 +271,14 @@ export function OpenTheBoxGame() {
       
       case 2:
         return (
-          <div className="mt-12 relative w-full h-40">
+          <div className="mt-12 relative w-full h-56 md:h-40">
             <button
               onClick={() => {
                 playSound('click');
                 nextLevel();
               }}
               onMouseEnter={() => {
+                if (isTouchDevice) return; // Handled by interval on mobile
                 playSound('progress');
                 setBtnPos({
                   top: `${Math.random() * 80 + 10}%`,
@@ -265,7 +286,7 @@ export function OpenTheBoxGame() {
                 });
               }}
               style={{ position: 'absolute', top: btnPos.top, left: btnPos.left, transform: 'translate(-50%, -50%)' }}
-              className="px-6 py-2 border-2 border-ink hover:bg-ink hover:text-paper font-bold transition-all duration-100"
+              className="px-6 py-2 border-2 border-ink hover:bg-ink hover:text-paper font-bold transition-all duration-300 ease-in-out whitespace-nowrap touch-manipulation select-none"
             >
               Catch me
             </button>
@@ -421,7 +442,7 @@ export function OpenTheBoxGame() {
       <div className="min-h-screen w-full bg-paper flex flex-col items-center justify-center p-4 font-mono relative">
         <div className="absolute top-6 left-6 z-10">
           <Link href="/" className="flex items-center gap-2 text-ink font-bold text-xl tracking-tight hover:opacity-70 transition-opacity">
-            <img src="/logo.jpg" alt="Glimmick Logo" className="w-6 h-6 rounded shadow-sm border border-ink" />
+            <Image src="/logo.jpg" alt="Glimmick Logo" width={24} height={24} className="w-6 h-6 rounded shadow-sm border border-ink" />
             Glimmick
           </Link>
         </div>
@@ -443,13 +464,13 @@ export function OpenTheBoxGame() {
           <div className="flex gap-4 justify-center">
             <button 
               onClick={() => setLevel(0)}
-              className="px-6 py-2 border-2 border-ink text-ink font-bold hover:bg-ink hover:text-paper transition-colors"
+              className="px-6 py-2 border-2 border-ink text-ink font-bold hover:bg-ink hover:text-paper transition-colors touch-manipulation"
             >
               Play Again
             </button>
             <button 
               onClick={shareResult}
-              className="px-6 py-2 bg-ink text-paper font-bold hover:bg-ink/80 transition-colors"
+              className="px-6 py-2 bg-ink text-paper font-bold hover:bg-ink/80 transition-colors touch-manipulation"
             >
               Share
             </button>
@@ -464,13 +485,13 @@ export function OpenTheBoxGame() {
       {/* Top Left Navigation */}
       <div className="absolute top-6 left-6 z-10">
         <Link href="/" className="flex items-center gap-2 text-ink font-bold text-xl tracking-tight hover:opacity-70 transition-opacity">
-          <img src="/logo.jpg" alt="Glimmick Logo" className="w-6 h-6 rounded shadow-sm border border-ink" />
+          <Image src="/logo.jpg" alt="Glimmick Logo" width={24} height={24} className="w-6 h-6 rounded shadow-sm border border-ink" />
           Glimmick
         </Link>
       </div>
 
       {/* Title */}
-      <div className="absolute top-6 w-full text-center pointer-events-none z-0">
+      <div className="absolute top-16 md:top-6 w-full text-center pointer-events-none z-0">
         <h2 className="text-2xl font-bold text-ink tracking-tighter uppercase font-['Comic_Sans_MS',_'Chalkboard_SE',_'Comic_Neue',_sans-serif]">Open The Box</h2>
       </div>
 

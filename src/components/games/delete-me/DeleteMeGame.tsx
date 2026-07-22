@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Howl, Howler } from "howler";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -30,6 +31,12 @@ export function DeleteMeGame() {
   // Level 9 specific
   const [isCursorHidden, setIsCursorHidden] = useState(false);
   const cursorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   // Constants
   const MAX_LEVEL = 10;
@@ -58,13 +65,22 @@ export function DeleteMeGame() {
     // Level 7: Items claim everything is fine. Target is the DELETE button itself.
     7: { items: ["No errors here.", "Everything is perfect.", "Look closely.", "Are you sure?"], targetId: "delete-button" },
     
-    // Level 8: The website logo in the top left is misspelled "Gllmmick".
+    // Level 8: The target is the website logo text itself (Gllmmick instead of Glimmick)
     8: { items: ["Perfect", "Flawless", "Correct", "Accurate", "Exact"], targetId: "logo" },
     
-    // Level 9: Items give subtle hints. Target is the mouse cursor (must not move for 5s).
-    9: { items: ["Clicking won't help.", "Some mistakes are in your hand.", "Just let go."], targetId: "cursor" },
+    // Level 9: Stop moving mouse for 5 seconds to win
+    9: { 
+      items: [
+        "Are you stuck?",
+        "Clicking won't help you here.",
+        "There is no target on the screen.",
+        "The mistake is you trying so hard.",
+        "Just let go."
+      ], 
+      targetId: "cursor" 
+    },
     
-    // Level 10: Complete callback to Level 1, but the target is the instruction text!
+    // Level 10: Target is the instruction text at the top
     10: { items: ["Apple", "Banana", "Orange", "Car", "Mango"], targetId: "instruction" },
   };
 
@@ -123,29 +139,40 @@ export function DeleteMeGame() {
     }
   };
 
-  // Level 9 Mouse Tracker
+  // Level 9: Stop moving mouse for 5 seconds to win (Desktop) OR Two-finger tap (Mobile)
   useEffect(() => {
     if (level !== 9) return;
 
-    const resetTimer = () => {
-      setIsCursorHidden(false);
-      if (cursorTimeoutRef.current) clearTimeout(cursorTimeoutRef.current);
+    if (isTouchDevice) {
+      // Mobile: Two-finger tap
+      const handleTouchStart = (e: TouchEvent) => {
+        if (e.touches.length >= 2) {
+          passLevel();
+        }
+      };
+      window.addEventListener("touchstart", handleTouchStart);
+      return () => window.removeEventListener("touchstart", handleTouchStart);
+    } else {
+      // Desktop: Hide mouse by not moving for 5 seconds
+      const handleMouseMove = () => {
+        setIsCursorHidden(false);
+        if (cursorTimeoutRef.current) clearTimeout(cursorTimeoutRef.current);
+        cursorTimeoutRef.current = setTimeout(() => {
+          setIsCursorHidden(true);
+          passLevel();
+        }, 5000);
+      };
       
-      cursorTimeoutRef.current = setTimeout(() => {
-        setIsCursorHidden(true);
-        passLevel();
-      }, 5000); // 5 seconds of no movement
-    };
-
-    window.addEventListener("mousemove", resetTimer);
-    resetTimer(); // Start initial timer
-
-    return () => {
-      window.removeEventListener("mousemove", resetTimer);
-      if (cursorTimeoutRef.current) clearTimeout(cursorTimeoutRef.current);
-    };
+      window.addEventListener("mousemove", handleMouseMove);
+      handleMouseMove(); // Start timer immediately
+      
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        if (cursorTimeoutRef.current) clearTimeout(cursorTimeoutRef.current);
+      };
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [level]);
+  }, [level, isTouchDevice, passLevel]);
 
   // Render helpers
   const currentLevelData = level <= MAX_LEVEL ? levelData[level as keyof typeof levelData] : null;
@@ -160,12 +187,12 @@ export function DeleteMeGame() {
             onClick={() => handleSelect("logo")}
             className={`flex items-center gap-2 text-ink font-bold text-xl tracking-tight transition-all pointer-events-auto px-2 py-1 rounded ${selectedId === "logo" ? "bg-ink text-paper" : "hover:opacity-70"} ${shakeId === "logo" ? "animate-shake border-red-500 text-red-500" : ""}`}
           >
-            <img src="/logo.jpg" alt="Glimmick Logo" className="w-6 h-6 rounded shadow-sm border border-ink" />
+            <Image src="/logo.jpg" alt="Glimmick Logo" width={24} height={24} className="w-6 h-6 rounded shadow-sm border border-ink" />
             Gllmmick
           </button>
         ) : (
           <Link href="/" className="flex items-center gap-2 text-ink font-bold text-xl tracking-tight hover:opacity-70 transition-opacity pointer-events-auto px-2 py-1">
-            <img src="/logo.jpg" alt="Glimmick Logo" className="w-6 h-6 rounded shadow-sm border border-ink" />
+            <Image src="/logo.jpg" alt="Glimmick Logo" width={24} height={24} className="w-6 h-6 rounded shadow-sm border border-ink" />
             Glimmick
           </Link>
         )}
@@ -212,9 +239,15 @@ export function DeleteMeGame() {
               {INSTRUCTION_TEXT}
             </div>
 
-            {/* Items List (Flex Wrap to prevent vertical overflow) */}
-            <div className="flex flex-wrap justify-center gap-4 w-full max-w-2xl">
-              {currentLevelData?.items.map((item, idx) => {
+            {/* Items List */}
+            <div className={`flex ${level === 9 ? 'flex-col gap-4 w-full max-w-xs' : 'flex-wrap justify-center gap-4 w-full max-w-2xl'}`}>
+              {(level === 9 && isTouchDevice ? [
+                "Are you stuck?",
+                "A single finger won't solve this.",
+                "You can't do it alone.",
+                "It takes two to tango.",
+                "Peace out."
+              ] : currentLevelData?.items)?.map((item, idx) => {
                 const itemId = `item-${idx}`;
                 const isSelected = selectedId === itemId;
                 const isShaking = shakeId === itemId;
