@@ -25,7 +25,6 @@ export function OpenTheBoxGame() {
   const [level, setLevel] = useState(0);
   const [clicks, setClicks] = useState(0);
   const [input, setInput] = useState("");
-  const [isHovered, setIsHovered] = useState(false);
   const [patienceProgress, setPatienceProgress] = useState(0);
   const [holdProgress, setHoldProgress] = useState(0);
   const [mathAnswer, setMathAnswer] = useState("");
@@ -67,13 +66,13 @@ export function OpenTheBoxGame() {
     if (isTransitioning) return;
     setIsTransitioning(true);
 
-    if (level < 9) {
+    if (level < 8) {
       playSound('correct');
-    } else if (level === 9) {
+    } else if (level === 8) {
       playSound('win');
     }
     
-    if (level === 9) {
+    if (level === 8) {
       const elapsed = (Date.now() - startTime) / 1000;
       let calc = (elapsed / 8) + (Math.random() * 0.5);
       calc = Math.max(0.1, Math.min(99.9, calc));
@@ -377,22 +376,6 @@ export function OpenTheBoxGame() {
 
       case 8:
         return (
-          <div className="fixed inset-0 bg-ink z-50 flex items-center justify-center">
-            <button 
-              onClick={() => {
-                playSound('click');
-                nextLevel();
-              }}
-              onMouseEnter={() => { playSound('progress'); setIsHovered(true); }}
-              onMouseLeave={() => setIsHovered(false)}
-              className={`w-16 h-16 rounded-full transition-colors duration-700 ${isHovered ? 'bg-paper/20' : 'bg-transparent'}`}
-            />
-            <div className="absolute bottom-6 left-6 text-paper/30 text-xs">Find it.</div>
-          </div>
-        );
-
-      case 9:
-        return (
           <div className="mt-12 flex flex-col items-center">
             <p className="text-sm mb-4">What year is it?</p>
             <input 
@@ -437,7 +420,7 @@ export function OpenTheBoxGame() {
     }
   };
 
-  if (level === 10) {
+  if (level === 9) {
     return (
       <div className="min-h-screen w-full bg-paper flex flex-col items-center justify-center p-4 font-mono relative">
         <div className="absolute top-6 left-6 z-10">
